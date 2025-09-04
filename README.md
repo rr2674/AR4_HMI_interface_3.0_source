@@ -54,6 +54,11 @@ python -m pip install matplotlib
 
 ## Instructions for using AR4 on Raspberry Pi
 
+```bash
+source .venv/bin/activate  # only once; at start of session
+python3 AR4.py
+```
+
 ## Additional Port notes
 
 -  Convert Winows icon (.ico) to PNG:
