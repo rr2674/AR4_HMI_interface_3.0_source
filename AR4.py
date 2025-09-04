@@ -54,19 +54,24 @@
 ##########################################################################
 ##########################################################################
 
-
+import platform
+os_system = platform.system()
 
 from multiprocessing.resource_sharer import stop
 from os import execv
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import ttk
+from tkinter import PhotoImage
 from tkinter import simpledialog
 from ttkthemes import ThemedStyle
 from tkinter import messagebox
 from PIL import Image, ImageTk
 from matplotlib import pyplot as plt
-from pygrabber.dshow_graph import FilterGraph
+if os_system == "Windows":
+  from pygrabber.dshow_graph import FilterGraph
+else:
+  import cv2
 
 import pickle
 import serial
@@ -89,7 +94,25 @@ cropping = False
 
 root = Tk()
 root.wm_title("AR4 Software Ver 3.0")
-root.iconbitmap(r'AR.ico')
+
+if os_system in ["Windows", "Darwin"]:
+  root.iconbitmap(r'AR.ico')
+else:
+  '''
+  The AR.ico file is a multi-resolution icon file containing several sizes of the icon.
+  To see the contents of the AR.ico file, you can use the `identify` command from ImageMagick.
+
+    identify AR.ico
+
+    AR.ico[0] ICO 16x16 16x16+0+0 8-bit sRGB 0.000u 0:00.001
+    AR.ico[1] ICO 24x24 24x24+0+0 8-bit sRGB 0.000u 0:00.001
+    AR.ico[2] ICO 32x32 32x32+0+0 8-bit sRGB 0.000u 0:00.001
+    AR.ico[3] ICO 48x48 48x48+0+0 8-bit sRGB 0.000u 0:00.001
+    AR.ico[4] PNG 256x256 256x256+0+0 8-bit sRGB 57477B 0.000u 0:00.000
+  '''
+  icon = PhotoImage(file='AR-0.png')
+  root.iconphoto(True, icon)
+
 root.resizable(width=False, height=False)
 root.geometry('1536x792+0+0')
 root.runTrue = 0
@@ -8903,11 +8926,26 @@ VisYpixfoundLab = Label(tab5, text = "Y pixes returned from camera")
 ### 5 BUTTONS################################################################
 #############################################################################
 
-graph = FilterGraph()
-try:
-  camList = graph.get_input_devices()
-except:
-  camList = ["Select a Camera"]
+camList = ["Select a Camera"]
+
+if os_system == "Windows":
+  graph = FilterGraph()
+  try:
+    camList = graph.get_input_devices()
+  except:
+    camList = ["Select a Camera"]
+else:
+  try:
+    # Suppress OpenCV warnings and errors
+    cv2.utils.logging.setLogLevel(cv2.utils.logging.LOG_LEVEL_ERROR)
+    for i in range(5):
+        cap = cv2.VideoCapture(i)
+        if cap.read()[0]:
+            camList.append(f"Camera {i}")
+            cap.release()
+  except:
+    camList = ["Select a Camera"]
+
 visoptions=StringVar(tab5)
 visoptions.set("Select a Camera")
 vismenu=OptionMenu(tab5, visoptions, camList[0], *camList)
