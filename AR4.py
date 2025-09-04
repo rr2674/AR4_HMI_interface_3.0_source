@@ -280,8 +280,8 @@ def startup():
 
 def setCom(): 
   try:
-    global ser    
-    port = "COM" + comPortEntryField.get()  
+    global ser
+    port = ("COM" if platform.system() == "Windows" else "/dev/ttyACM") + comPortEntryField.get()
     baud = 9600    
     ser = serial.Serial(port,baud)
     almStatusLab.config(text="SYSTEM READY", style="OK.TLabel")
@@ -305,7 +305,7 @@ def setCom():
 def setCom2(): 
   try:
     global ser2    
-    port = "COM" + com2PortEntryField.get()  
+    port = ("COM" if platform.system() == "Windows" else "/dev/ttyACM") + comPortEntryField.get()
     baud = 115200    
     ser2 = serial.Serial(port,baud)
     almStatusLab.config(text="SYSTEM READY", style="OK.TLabel")
